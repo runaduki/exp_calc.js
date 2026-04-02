@@ -13,6 +13,18 @@ h1 {
   font-size: 24px;
 }
 
+.mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+input[type="radio"] {
+  width: auto;
+  margin: 0;
+}
+
 /* ===== 計算機のコンテナ ===== */
 .calculator {
   background: white;
@@ -37,6 +49,7 @@ label {
   display: block;
   margin-bottom: 6px;
   font-weight: bold;
+  text-align: left;
 }
 
 input, select {
