@@ -1,54 +1,169 @@
-let expTables = {};
+/* ===== 共通スタイル ===== */
+body {
+  font-family: "メイリオ", sans-serif;
+  background: #dbefff;
+  text-align: center;
+  padding: 30px;
+  margin: 0;
+  font-size: 16px;
+}
 
-fetch("./data/expTables.json")
-  .then(response => response.json())
-  .then(data => {
-    expTables = data;
-    console.log("経験値テーブル読み込み完了", expTables);
-  })
-  .catch(err => console.error("読み込みエラー:", err));
+h1 {
+  margin-bottom: 30px;
+  font-size: 24px;
+}
 
-function calcLevel() {
-  const type = document.getElementById("typeSelect").value;
-  const expInput = document.getElementById("expInput").value;
-  const result = document.getElementById("result");
+.mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
 
-  let exp = parseInt(expInput, 10);
+input[type="radio"] {
+  width: auto;
+  margin: 0;
+}
 
-  // デバッグログは変数を定義した後に！
-  console.log("type:", type);
-  console.log("exp:", exp);
-  console.log("expTables:", expTables);
+/* ===== 計算機のコンテナ ===== */
+.calculator {
+  background: white;
+  padding: 24px;
+  margin: 0 auto;
+  max-width: 500px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-  if (isNaN(exp) || exp < 0) {
-    result.textContent = "正しい累積経験値を入力してください。";
-    return;
+/* ===== ラベルと入力欄 ===== */
+.form-group {
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  text-align: left;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* ===== ボタンスタイル ===== */
+.button-wrapper {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background: #0078d7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #005fa3;
+}
+
+/* ===== 結果表示 ===== */
+#result {
+  font-size: 16px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+
+
+/* ===== PC向けレスポンシブ対応 ===== */
+@media (min-width: 600px) {
+  .form-group.select-group {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* ラベルと選択ボックスの間隔 */
+  margin-top: 10px;
   }
 
-  const expTable = expTables[type];
-  console.log("expTable:", expTable);
-
-  if (!expTable) {
-    result.textContent = "データがありません。";
-    return;
+  .form-group.select-group label {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin-bottom: 0; /* 縦揃えに調整 */
   }
 
-  let level = 1;
-  for (let i = 0; i < expTable.length; i++) {
-    if (exp >= expTable[i]) {
-      level = i + 1;
-    } else {
-      break;
-    }
+  .form-group.select-group select {
+   width: 200px;  /* ここで幅指定 */
+    flex: none;    /* flex-growを解除 */
+  }
+}
+
+button {
+  padding: 15px;
+  margin-top: 10px;
+  border: none;
+  background: #0078d7;
+  color: white;
+  font-size: 18px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  /* 中央揃え用 */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 60%;  /* 必要に応じて調整 */
+  text-align: center;
+}
+
+#expInput {
+  height: 48px;         /* 高さを大きく */
+     /* 文字サイズアップ */
+  padding: 10px 12px;   /* 内側の余白増加 */
+  border-radius: 8px;   /* 角丸を大きく */
+
+}
+
+
+
+/* ===== スマホ向けレスポンシブ対応 ===== */
+@media (max-width: 480px) {
+  body {
+    font-size: 17px;
+    padding: 15px;
   }
 
-  let nextLevelExp = expTable[level] || "MAX";
-  let toNext = (nextLevelExp !== "MAX") ? nextLevelExp - exp : 0;
+  h1 {
+    font-size: 25px;
+  }
 
-  result.innerHTML = `
-    
-    累積EXP: <strong>${exp}</strong><br>
-    ⇒ Lv.<strong>${level}</strong><br>
-    ${nextLevelExp !== "MAX" ? `次まで: <strong>${toNext}</strong> EXP` : "カンスト！"}
-  `;
+  .calculator {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  input, select, button {
+    font-size: 18px;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  #result {
+    font-size: 15px;
+  }
 }
