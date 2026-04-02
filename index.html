@@ -23,14 +23,22 @@
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="expInput">累積経験値を入力:</label>
-      <input type="number" id="expInput" placeholder="例: 123456">
-    </div>
+<div class="form-group select-group">
+<label class="mode">
+<input type="radio" name="mode" value="exp" checked>
+累積経験値から極Lvを計算
+</label>
+</div>
+<div class="form-group">
+<label class="mode">
+<input type="radio" name="mode" value="level">
+目標極Lvまでの累積経験値
+</label>
+</div>
 
-    <div class="button-wrapper">
-      <button onclick="calcLevel()">レベルを計算</button>
-    </div>
+<input type="number" id="mainInput">
+
+<button onclick="calc()">計算</button>
 
     <p id="result">ここに結果が表示されます</p>
   </div>
