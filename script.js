@@ -1,169 +1,154 @@
-/* ===== 共通スタイル ===== */
-body {
-  font-family: "メイリオ", sans-serif;
-  background: #dbefff;
-  text-align: center;
-  padding: 30px;
-  margin: 0;
-  font-size: 16px;
-}
+let expTables = {};
 
-h1 {
-  margin-bottom: 30px;
-  font-size: 24px;
-}
+fetch("./data/expTables.json")
+  .then(response => response.json())
+  .then(data => {
+    expTables = data;
+    console.log("経験値テーブル読み込み完了", expTables);
+  })
+  .catch(err => console.error("読み込みエラー:", err));
 
-.mode {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0;
-}
+function calcLevel() {
+  const type = document.getElementById("typeSelect").value;
+  const expInput = document.getElementById("mainInput").value;
+  const result = document.getElementById("result");
 
-input[type="radio"] {
-  width: auto;
-  margin: 0;
-}
+  let exp = parseInt(expInput, 10);
 
-/* ===== 計算機のコンテナ ===== */
-.calculator {
-  background: white;
-  padding: 24px;
-  margin: 0 auto;
-  max-width: 500px;
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+  console.log("type:", type);
+  console.log("exp:", exp);
+  console.log("expTables:", expTables);
 
-/* ===== ラベルと入力欄 ===== */
-.form-group {
-  text-align: left;
-}
-
-label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: bold;
-  text-align: left;
-}
-
-input, select {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-/* ===== ボタンスタイル ===== */
-.button-wrapper {
-  text-align: center;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background: #0078d7;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #005fa3;
-}
-
-/* ===== 結果表示 ===== */
-#result {
-  font-size: 16px;
-  margin-top: 10px;
-  text-align: center;
-}
-
-
-
-/* ===== PC向けレスポンシブ対応 ===== */
-@media (min-width: 600px) {
-  .form-group.select-group {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* ラベルと選択ボックスの間隔 */
-  margin-top: 10px;
+  if (isNaN(exp) || exp < 0) {
+    result.textContent = "正しい累積経験値を入力してください。";
+    return;
   }
 
-  .form-group.select-group label {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    margin-bottom: 0; /* 縦揃えに調整 */
+  const expTable = expTables[type];
+
+  if (!expTable) {
+    result.textContent = "データがありません。";
+    return;
   }
 
-  .form-group.select-group select {
-   width: 200px;  /* ここで幅指定 */
-    flex: none;    /* flex-growを解除 */
+  let level = 1;
+  for (let i = 0; i < expTable.length; i++) {
+    if (exp >= expTable[i]) {
+      level = i + 1;
+    } else {
+      break;
+    }
+  }
+
+  const maxLevel = expTable.length;
+  const bloomingLevel = 100;
+
+  let nextLevelExp = expTable[level] || "MAX";
+  let toNext = (nextLevelExp !== "MAX") ? nextLevelExp - exp : 0;
+
+  let statusText = "";
+
+  if (level === 99) {
+    statusText = "カンスト！";
+  } else if (level === bloomingLevel) {
+    statusText = "開花🌸";
+  } else if (level === maxLevel) {
+    statusText = "開花カンスト！";
+  }
+
+  result.innerHTML = `
+    累積EXP: <strong>${exp}</strong><br>
+    ⇒ Lv.<strong>${level}</strong><br>
+    ${statusText}<br>
+    ${nextLevelExp !== "MAX" && level !== maxLevel ? 
+      `次まで: <strong>${toNext}</strong> EXP` : ""}
+  `;
+}
+
+function calc() {
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+
+  if (mode === "exp") {
+    calcLevel();
+  } else {
+    calcExpFromLevel();
   }
 }
 
-button {
-  padding: 15px;
-  margin-top: 10px;
-  border: none;
-  background: #0078d7;
-  color: white;
-  font-size: 18px;
-  border-radius: 6px;
-  cursor: pointer;
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+  radio.addEventListener("change", () => {
+    const input = document.getElementById("mainInput");
 
-  /* 中央揃え用 */
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 60%;  /* 必要に応じて調整 */
-  text-align: center;
+     input.value = "";
+     document.getElementById("result").textContent = "ここに結果が表示されます";
+
+    if (radio.value === "exp") {
+      input.placeholder = "累積EXPを入力";
+    } else {
+      input.placeholder = "目標極Lvを入力";
+    }
+  });
+});
+
+function calcExpFromLevel() {
+  const type = document.getElementById("typeSelect").value;
+  const levelInput = document.getElementById("mainInput").value;
+  const result = document.getElementById("result");
+
+  let level = parseInt(levelInput, 10);
+
+  if (isNaN(level) || level <= 0) {
+    result.textContent = "正しいレベルを入力してください。";
+    return;
+  }
+
+  const expTable = expTables[type];
+
+  if (!expTable) {
+    result.textContent = "データがありません。";
+    return;
+  }
+
+  if (level > expTable.length) {
+    result.textContent = "そのレベルは存在しません。";
+    return;
+  }
+
+  const exp = expTable[level - 1];
+
+  const maxLevel = expTable.length;
+  const bloomingLevel = 100;
+
+  let nextLevelExp = expTable[level] || "MAX";
+  let toNext = (nextLevelExp !== "MAX") ? nextLevelExp - exp : 0;
+
+  let statusText = "";
+
+  if (level === 99) {
+    statusText = "カンスト！";
+  } else if (level === bloomingLevel) {
+    statusText = "開花🌸";
+  } else if (level === maxLevel) {
+    statusText = "開花カンスト！";
+  }
+
+  result.innerHTML = `
+    Lv.<strong>${level}</strong><br>
+    累積EXP: <strong>${exp}</strong><br>
+    ${statusText}<br>
+    ${nextLevelExp !== "MAX" && level !== maxLevel ? 
+      `次まで: <strong>${toNext}</strong> EXP` : ""}
+  `;
 }
 
-#expInput {
-  height: 48px;         /* 高さを大きく */
-     /* 文字サイズアップ */
-  padding: 10px 12px;   /* 内側の余白増加 */
-  border-radius: 8px;   /* 角丸を大きく */
+// 初期表示設定
+window.addEventListener("DOMContentLoaded", () => {
+  const selected = document.querySelector('input[name="mode"]:checked');
+  const input = document.getElementById("mainInput");
 
-}
-
-
-
-/* ===== スマホ向けレスポンシブ対応 ===== */
-@media (max-width: 480px) {
-  body {
-    font-size: 17px;
-    padding: 15px;
+  if (selected.value === "exp") {
+    input.placeholder = "累積EXPを入力";
+  } else {
+    input.placeholder = "レベルを入力";
   }
-
-  h1 {
-    font-size: 25px;
-  }
-
-  .calculator {
-    padding: 16px;
-    gap: 16px;
-  }
-
-  input, select, button {
-    font-size: 18px;
-  }
-
-  button {
-    width: 100%;
-  }
-
-  #result {
-    font-size: 15px;
-  }
-}
+});
