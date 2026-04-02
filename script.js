@@ -133,7 +133,7 @@ function calcExpFromLevel() {
   }
 
   result.innerHTML = `
-    Lv.<strong>${level}</strong><br>
+    極Lv.<strong>${level}</strong><br>
     累積EXP: <strong>${exp}</strong><br>
     ${statusText}<br>
     ${nextLevelExp !== "MAX" && level !== maxLevel ? 
