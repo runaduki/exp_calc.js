@@ -58,7 +58,7 @@ function calcLevel() {
 
   result.innerHTML = `
     累積EXP: <strong>${exp}</strong><br>
-    ⇒ Lv.<strong>${level}</strong><br>
+    ⇒ 極Lv.<strong>${level}</strong><br>
     ${statusText}<br>
     ${nextLevelExp !== "MAX" && level !== maxLevel ? 
       `次まで: <strong>${toNext}</strong> EXP` : ""}
